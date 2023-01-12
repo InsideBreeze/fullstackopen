@@ -1,8 +1,9 @@
-import axios from "axios";
 import { useEffect, useState } from "react";
 import AddPerson from "./components/AddPerson";
 import Filter from "./components/Filter";
+import Notification from "./components/Notification";
 import Persons from "./components/Persons";
+import phonebookService from "./services/phonebookService";
 
 const App = () => {
   //const [persons, setPersons] = useState([
@@ -12,24 +13,56 @@ const App = () => {
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
   const [filter, setFilter] = useState("");
+  const [notification, setNofication] = useState(null);
+  const [success, setSuccess] = useState(false);
 
   useEffect(() => {
-    axios.get("http://localhost:3001/persons").then((res) => {
-      setPersons(res.data);
-    });
+    phonebookService.getPhoneBooks().then((data) => setPersons(data));
   }, []);
 
   const addPerson = (e) => {
     e.preventDefault();
     if (persons.map((person) => person.name).includes(newName)) {
+      if (
+        window.confirm(
+          `${newName} is already added to phonebook, replace the old number with a new one?`
+        )
+      ) {
+        const person = persons.find((person) => person.name === newName);
+        const newPerson = { ...person, number: newNumber };
+        return phonebookService
+          .updatePerson(person.id, newPerson)
+          .then((updatedPerson) => {
+            setPersons(
+              persons.map((person) =>
+                person.id === updatedPerson.id ? updatedPerson : person
+              )
+            );
+            setNewName("");
+            setNewNumber("");
+          })
+          .catch((error) => {
+            setNofication(
+              `Information of ${newName} has already been removed from server`
+            );
+            setSuccess(false);
+            setPersons(persons.filter((person) => person.name !== newName));
+            setTimeout(() => setNofication(null), 3000);
+            setNewName("");
+            setNewNumber("");
+          });
+      }
+    }
+
+    const newPerson = { name: newName, number: newNumber };
+    phonebookService.addPerson(newPerson).then((addedPerson) => {
+      setPersons(persons.concat(addedPerson));
+      setNofication(`Added ${newName}`);
+      setTimeout(() => setNofication(null), 3000);
+      setSuccess(true);
       setNewName("");
       setNewNumber("");
-      return alert(`${newName} is already added to phonebook`);
-    }
-    const newPersons = persons.concat({ name: newName, number: newNumber });
-    setPersons(newPersons);
-    setNewName("");
-    setNewNumber("");
+    });
   };
 
   const filteredPersons =
@@ -42,6 +75,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification text={notification} success={success} />
       <Filter filter={filter} setFilter={setFilter} />
       <h3>add a new</h3>
       <AddPerson
@@ -52,7 +86,7 @@ const App = () => {
         addPerson={addPerson}
       />
       <h3>Numbers</h3>
-      <Persons persons={filteredPersons} />
+      <Persons persons={filteredPersons} setPersons={setPersons} />
     </div>
   );
 };
