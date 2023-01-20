@@ -1,8 +1,10 @@
 const express = require("express");
 const morgan = require("morgan");
 const app = express();
+const cors = require("cors");
 
 app.use(express.json());
+app.use(cors());
 //app.use(morgan("tiny"));
 
 const data = morgan.token("data", (req, res) => {
@@ -79,6 +81,14 @@ app.post("/api/persons", (req, res) => {
   const person = { id, name, number };
   persons = persons.concat(person);
   res.status(201).json(person);
+});
+
+app.put("/api/persons/:id", (req, res) => {
+  const { name, number } = req.body;
+  const personToUpdate = { name, number };
+
+  persons.map((person) => (person.name === name ? personToUpdate : person));
+  res.json(personToUpdate);
 });
 
 const PORT = 3001;
