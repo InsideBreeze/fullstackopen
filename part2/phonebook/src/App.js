@@ -55,14 +55,21 @@ const App = () => {
     }
 
     const newPerson = { name: newName, number: newNumber };
-    phonebookService.addPerson(newPerson).then((addedPerson) => {
-      setPersons(persons.concat(addedPerson));
-      setNofication(`Added ${newName}`);
-      setTimeout(() => setNofication(null), 3000);
-      setSuccess(true);
-      setNewName("");
-      setNewNumber("");
-    });
+    phonebookService
+      .addPerson(newPerson)
+      .then((addedPerson) => {
+        setPersons(persons.concat(addedPerson));
+        setNofication(`Added ${newName}`);
+        setTimeout(() => setNofication(null), 3000);
+        setSuccess(true);
+        setNewName("");
+        setNewNumber("");
+      })
+      .catch((error) => {
+        setSuccess(false);
+        setNofication(error.response.data.error);
+        setTimeout(() => setNofication(null), 3000);
+      });
   };
 
   const filteredPersons =

@@ -8,6 +8,7 @@ app.use(express.json());
 app.use(cors());
 //app.use(morgan("tiny"));
 
+//eslint-disable-next-line
 const data = morgan.token("data", (req, res) => {
   if (req.method === "POST") {
     return JSON.stringify(req.body);
@@ -22,6 +23,10 @@ const errorHandler = (error, req, res, next) => {
   if (error.name === "CastError") {
     return res.status(400).send({ error: "malformatted id" });
   }
+  if (error.name === "ValidationError") {
+    return res.status(400).send({ error: error.message });
+  }
+  next(error);
 };
 /* let persons = [
   {
@@ -77,13 +82,13 @@ app.get("/api/persons/:id", (request, response, next) => {
 app.delete("/api/persons/:id", (req, res, next) => {
   const id = req.params.id;
   Person.findByIdAndDelete(id)
-    .then((removedPerson) => {
+    .then(() => {
       res.status(204).end();
     })
     .catch((error) => next(error));
 });
 
-app.post("/api/persons", (req, res) => {
+app.post("/api/persons", (req, res, next) => {
   const { name, number } = req.body;
   // name or number missing
   if (!(name && number)) {
@@ -91,16 +96,18 @@ app.post("/api/persons", (req, res) => {
   }
   // name already existed, when current page is not updated, but the name is added to the db
   Person.find({ name }).then((personExisted) => {
-    console.log(personExisted);
     if (personExisted.length > 0) {
       return res
         .status(400)
         .json({ error: `name is already existed: ${personExisted[0].name}` });
     }
     const person = new Person({ name, number });
-    person.save().then((savedPerson) => {
-      return res.status(201).json(savedPerson);
-    });
+    person
+      .save()
+      .then((savedPerson) => {
+        return res.status(201).json(savedPerson);
+      })
+      .catch((error) => next(error));
   });
 });
 
