@@ -1,134 +1,117 @@
-const listHelper = require("../src/utils/list_helper");
+const mongoose = require("mongoose");
+const supertest = require("supertest");
+const app = require("../src/app");
+const Blog = require("../src/models/blog");
+const api = supertest(app);
 
-const listWithOneBlog = [
-  {
-    _id: "5a422aa71b54a676234d17f8",
-    title: "Go To Statement Considered Harmful",
-    author: "Edsger W. Dijkstra",
-    url: "http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html",
-    likes: 5,
-    __v: 0,
-  },
-];
-blogs = [
-  {
-    _id: "5a422a851b54a676234d17f7",
-    title: "React patterns",
-    author: "Michael Chan",
-    url: "https://reactpatterns.com/",
-    likes: 7,
-    __v: 0,
-  },
-  {
-    _id: "5a422aa71b54a676234d17f8",
-    title: "Go To Statement Considered Harmful",
-    author: "Edsger W. Dijkstra",
-    url: "http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html",
-    likes: 5,
-    __v: 0,
-  },
-  {
-    _id: "5a422b3a1b54a676234d17f9",
-    title: "Canonical string reduction",
-    author: "Edsger W. Dijkstra",
-    url: "http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html",
-    likes: 12,
-    __v: 0,
-  },
-  {
-    _id: "5a422b891b54a676234d17fa",
-    title: "First class tests",
-    author: "Robert C. Martin",
-    url: "http://blog.cleancoder.com/uncle-bob/2017/05/05/TestDefinitions.htmll",
-    likes: 10,
-    __v: 0,
-  },
-  {
-    _id: "5a422ba71b54a676234d17fb",
-    title: "TDD harms architecture",
-    author: "Robert C. Martin",
-    url: "http://blog.cleancoder.com/uncle-bob/2017/03/03/TDD-Harms-Architecture.html",
-    likes: 0,
-    __v: 0,
-  },
-  {
-    _id: "5a422bc61b54a676234d17fc",
-    title: "Type wars",
-    author: "Robert C. Martin",
-    url: "http://blog.cleancoder.com/uncle-bob/2016/05/01/TypeWars.html",
-    likes: 2,
-    __v: 0,
-  },
-];
+jest.setTimeout(100000);
+const bloglistHelper = require("../src/utils/bloglist_test_helper");
 
-test("dummy results one", () => {
-  const blogs = [];
-  const result = listHelper.dummy(blogs);
-  expect(result).toBe(1);
+beforeEach(async () => {
+  await Blog.deleteMany({});
+  const blogObjects = bloglistHelper.initialBlogs.map((blog) => new Blog(blog));
+  const promiseArray = blogObjects.map((blog) => blog.save());
+  await Promise.all(promiseArray);
 });
 
-describe("total likes", () => {
-  test("when list has only one blog, equals the likes of that", () => {
-    const result = listHelper.totalLikes(listWithOneBlog);
-    expect(result).toBe(5);
+describe("test get method", () => {
+  test("test content-type", async () => {
+    await api
+      .get("/api/blogs")
+      .expect(200)
+      .expect("Content-Type", /application\/json/);
   });
 
-  test("when list has many blogs", () => {
-    const result = listHelper.totalLikes(blogs);
-    expect(result).toBe(36);
+  test("test amount of returned blogs", async () => {
+    const response = await api.get("/api/blogs");
+    expect(response.body).toHaveLength(bloglistHelper.initialBlogs.length);
   });
 });
 
-describe("favorite blog", () => {
-  test("when there is only one blog, the favorite blog is that", () => {
-    const result = listHelper.favoriteBlog(listWithOneBlog);
-    expect(result).toEqual(listWithOneBlog[0]);
-  });
-
-  test("when there are many blogs", () => {
-    const result = listHelper.favoriteBlog(blogs);
-    expect(result).toEqual({
-      _id: "5a422b3a1b54a676234d17f9",
-      title: "Canonical string reduction",
-      author: "Edsger W. Dijkstra",
-      url: "http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html",
-      likes: 12,
-      __v: 0,
-    });
+describe("test id", () => {
+  test("id is defined", async () => {
+    const response = await api.get("/api/blogs");
+    expect(response.body[0].id).toBeDefined();
   });
 });
 
-describe("most blogs", () => {
-  test("when there is only one blog", () => {
-    const result = listHelper.mostBlogs(listWithOneBlog);
-    expect(result).toEqual({
-      author: listWithOneBlog[0].author,
-      blogs: 1,
-    });
+describe("test post method", () => {
+  test("post blog", async () => {
+    const newBlog = {
+      author: "J.K Rowling",
+      title: "Harry Potter",
+      url: "www.harrypotter.com",
+      likes: 10,
+    };
+    const blogsAtStart = await bloglistHelper.blogsInDB();
+    await api
+      .post("/api/blogs")
+      .send(newBlog)
+      .expect(201)
+      .expect("Content-Type", /application\/json/);
+
+    const blogsAtEnd = await bloglistHelper.blogsInDB();
+    expect(blogsAtEnd).toHaveLength(blogsAtStart.length + 1);
+    const titles = blogsAtEnd.map((blog) => blog.title);
+    expect(titles).toContain(newBlog.title);
   });
-  test("when there are many blogs", () => {
-    const result = listHelper.mostBlogs(blogs);
-    expect(result).toEqual({
-      author: "Robert C. Martin",
-      blogs: 3,
-    });
+
+  test("test defalt likes is 0", async () => {
+    const blogWithoutLikes = {
+      author: "J.K Rowling",
+      title: "Harry Potter",
+      url: "www.harrypotter.com",
+    };
+    const response = await api.post("/api/blogs").send(blogWithoutLikes);
+    expect(response.body.likes).toBeDefined();
+    expect(response.body.likes).toBe(0);
+  });
+
+  test("test title is required", async () => {
+    const blogWithoutTitle = {
+      author: "J.K Rowling",
+      url: "www.harrypotter.com",
+      likes: 10,
+    };
+    await api.post("/api/blogs").send(blogWithoutTitle).expect(400);
+  });
+
+  test("test url is required", async () => {
+    const blogWithoutUrl = {
+      author: "J.K Rowling",
+      title: "Harry Potter",
+      likes: 10,
+    };
+    await api.post("/api/blogs").send(blogWithoutUrl).expect(400);
   });
 });
 
-describe("most likes", () => {
-  test("when there is only one blog", () => {
-    const result = listHelper.mostLikes(listWithOneBlog);
-    expect(result).toEqual({
-      author: listWithOneBlog[0].author,
-      likes: listWithOneBlog[0].likes,
-    });
+describe("test delete method", () => {
+  test("delete", async () => {
+    const blogsAtStart = await bloglistHelper.blogsInDB();
+    const titleToDelete = blogsAtStart[0].title;
+    await api.delete(`/api/blogs/${blogsAtStart[0].id}`).expect(204);
+    const blogsAtEnd = await bloglistHelper.blogsInDB();
+    expect(blogsAtEnd).toHaveLength(blogsAtStart.length - 1);
+    const titles = blogsAtEnd.map((blog) => blog.title);
+    expect(titles).not.toContain(titleToDelete);
   });
+});
 
-  test("when there are many blogs", () => {
-    const result = listHelper.mostLikes(blogs);
-    expect(result).toEqual({
-      author: "Edsger W. Dijkstra",
-      likes: 17,
+describe("test update function", () => {
+  test("update likes", async () => {
+    const blogsAtStart = await bloglistHelper.blogsInDB();
+    const blogToUpdate = blogsAtStart[0];
+    const response = await api.put(`/api/blogs/${blogToUpdate.id}`).send({
+      url: blogToUpdate.url,
+      title: blogToUpdate.title,
+      author: blogToUpdate.author,
+      likes: blogToUpdate.likes + 1,
     });
+    expect(response.body.likes).toBe(blogToUpdate.likes + 1);
   });
+});
+
+afterAll(() => {
+  mongoose.connection.close();
 });
