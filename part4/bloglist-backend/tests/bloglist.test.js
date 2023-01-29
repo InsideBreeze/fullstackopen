@@ -2,7 +2,10 @@ const mongoose = require("mongoose");
 const supertest = require("supertest");
 const app = require("../src/app");
 const Blog = require("../src/models/blog");
+const User = require("../src/models/user");
+const bcrypt = require("bcrypt");
 const api = supertest(app);
+
 
 jest.setTimeout(100000);
 const bloglistHelper = require("../src/utils/bloglist_test_helper");
@@ -12,6 +15,11 @@ beforeEach(async () => {
   const blogObjects = bloglistHelper.initialBlogs.map((blog) => new Blog(blog));
   const promiseArray = blogObjects.map((blog) => blog.save());
   await Promise.all(promiseArray);
+  await User.deleteMany({});
+  const passwordHash = await bcrypt.hash("password", 10);
+  const user = new User({ username: "root", name: "root", passwordHash });
+  await user.save();
+
 });
 
 describe("test get method", () => {
@@ -44,8 +52,13 @@ describe("test post method", () => {
       likes: 10,
     };
     const blogsAtStart = await bloglistHelper.blogsInDB();
+    // login to get token first
+    const response = await api.post("/api/login").send({ username: "root", password: "password" });
+    // don't forget add Bearer scheme
+    const token = "Bearer " + response.body.token;
     await api
       .post("/api/blogs")
+      .set('Authorization', token)
       .send(newBlog)
       .expect(201)
       .expect("Content-Type", /application\/json/);
@@ -56,13 +69,32 @@ describe("test post method", () => {
     expect(titles).toContain(newBlog.title);
   });
 
+  test("posting without a token return 401", async () => {
+    const newBlog = {
+      author: "J.K Rowling",
+      title: "Harry Potter",
+      url: "www.harrypotter.com",
+      likes: 10,
+    };
+    const blogsAtStart = await bloglistHelper.blogsInDB();
+    await api.post("/api/blogs").send(newBlog).expect(401);
+    const blogsAtEnd = await bloglistHelper.blogsInDB();
+    expect(blogsAtEnd).toHaveLength(blogsAtStart.length);
+  })
+
   test("test defalt likes is 0", async () => {
     const blogWithoutLikes = {
       author: "J.K Rowling",
       title: "Harry Potter",
       url: "www.harrypotter.com",
     };
-    const response = await api.post("/api/blogs").send(blogWithoutLikes);
+    // login to get token first
+    const loginResponse = await api.post("/api/login").send({ username: "root", password: "password" });
+    const token = "Bearer " + loginResponse.body.token;
+
+    const response = await api.post("/api/blogs")
+      .set("Authorization", token)
+      .send(blogWithoutLikes);
     expect(response.body.likes).toBeDefined();
     expect(response.body.likes).toBe(0);
   });
@@ -111,6 +143,47 @@ describe("test update function", () => {
     expect(response.body.likes).toBe(blogToUpdate.likes + 1);
   });
 });
+
+
+
+// test users
+describe("test user implementation", () => {
+  beforeEach(async () => {
+    await User.deleteMany({});
+    const passwordHash = await bcrypt.hash("password", 10);
+    const user = new User({ username: "root", name: "root", passwordHash });
+    await user.save();
+  })
+
+  test("valid user can be added", async () => {
+    const newUser = { username: "zephyr", name: "zephyr", password: "zephyr" };
+    await api.post("/api/users")
+      .send(newUser)
+      .expect(201);
+    const usersAtEnd = await bloglistHelper.usersInDB();
+    expect(usersAtEnd).toHaveLength(2);
+  })
+
+  test("invalid user can't be added", async () => {
+    //repeat username
+    const newUser = { username: "root", name: "zephyr", password: "zephyr" };
+    await api.post("/api/users")
+      .send(newUser)
+      .expect(400);
+    //short name
+    const anotherUser = { username: "la", name: "la", password: "lala" };
+    await api.post("/api/users")
+      .send(anotherUser)
+      .expect(400);
+
+    const usersAtEnd = await bloglistHelper.usersInDB();
+    expect(usersAtEnd).toHaveLength(1);
+  })
+
+
+})
+
+
 
 afterAll(() => {
   mongoose.connection.close();

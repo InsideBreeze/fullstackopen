@@ -1,9 +1,5 @@
-POST http://localhost:3003/api/blogs HTTP/1.1
+DELETE http://localhost:3003/api/blogs/63d5d144291a8c98e0f1bfac HTTP/1.1
 Content-Type: application/json
+#Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYzZDRkMWI0MmEzZmQ0NTI0N2ExN2Y2MSIsInVzZXJuYW1lIjoiemVwaHlyIiwiaWF0IjoxNjc0ODk1MDkyfQ.RbN8_mb-EiILChl9rubZa4NzZzkQ61lm393LyUO2n1A
 
-{
-    "author": "J.K Rowling",
-    "title": "Harry Potter",
-    "url": "wwww.harrypotter.com",
-    "likes": 10
-}
+
