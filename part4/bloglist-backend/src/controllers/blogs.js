@@ -63,12 +63,7 @@ blogRouter.put("/:id", async (req, res, next) => {
   if (!user) {
     return res.status(401).json({ error: "need token" })
   }
-  const blogToUpdate = await Blog.findById(id);
-  // if the blog is not created by this user, return 403
-  if (!blogToUpdate || blogToUpdate.user.toString() !== user._id.toString()) {
-    return res.status(403).json({ error: "you are not qualified to update this blog" });
-  }
-
+ 
   try {
     const updatedBlog = await Blog.findByIdAndUpdate(id, blog, { new: true });
     res.json(updatedBlog);

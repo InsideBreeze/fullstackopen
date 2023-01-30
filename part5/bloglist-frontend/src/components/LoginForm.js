@@ -1,9 +1,8 @@
-import { useState } from "react"
+import { useState } from "react";
 import loginService from "../services/login";
 import blogService from "../services/blogs";
 
 const LoginForm = ({ setUser, notify }) => {
-
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
@@ -16,7 +15,7 @@ const LoginForm = ({ setUser, notify }) => {
       blogService.setToken(user.token);
     } catch (error) {
       console.log(error.message);
-      notify(`wrong username or password`)
+      notify(`wrong username or password`);
     }
   };
   return (
@@ -24,15 +23,25 @@ const LoginForm = ({ setUser, notify }) => {
       <h2>log in to application</h2>
       <form onSubmit={handleLogin}>
         <div>
-          username <input type="text" value={username} onChange={(event) => setUsername(event.target.value)} />
+          username{" "}
+          <input
+            type="text"
+            value={username}
+            onChange={(event) => setUsername(event.target.value)}
+          />
         </div>
         <div>
-          password <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} />
+          password{" "}
+          <input
+            type="password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+          />
         </div>
         <button type="submit">login</button>
       </form>
     </>
-  )
-}
+  );
+};
 
 export default LoginForm;

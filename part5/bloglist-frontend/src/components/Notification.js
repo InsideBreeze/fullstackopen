@@ -7,13 +7,9 @@ const Notification = ({ message }) => {
     backgroundColor: "#d9d9d9",
     padding: "5px",
     borderRadius: "5px",
-    color: "green"
-  }
-  return (
-    <div style={style} >
-      {message}
-    </div>
-  )
-}
+    color: "green",
+  };
+  return <div style={style}>{message}</div>;
+};
 
 export default Notification;
