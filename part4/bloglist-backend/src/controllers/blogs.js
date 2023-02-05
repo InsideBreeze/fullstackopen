@@ -1,6 +1,8 @@
 const express = require("express");
+const { Mongoose, default: mongoose } = require("mongoose");
 const blogRouter = express.Router();
 const Blog = require("../models/blog");
+const Comment = require("../models/comment");
 
 blogRouter.get("/", async (req, res) => {
   const blogs = await Blog.find({}).populate("user");
@@ -72,4 +74,21 @@ blogRouter.put("/:id", async (req, res, next) => {
   }
 });
 
+blogRouter.post("/:id/comments", async (req, res) => {
+  const id = new mongoose.Types.ObjectId(req.params.id);
+  //console.log(id);
+
+ 
+
+  const { comment } = req.body;
+  const commentObject = new Comment({ blogId: id, comment});
+  const createdComment = await commentObject.save();
+  res.json(createdComment);
+})
+
+blogRouter.get("/:id/comments", async (req, res) => {
+  const id = req.params.id;
+  const comments = await Comment.find({ blogId: id});
+  res.json(comments);
+})
 module.exports = blogRouter;
