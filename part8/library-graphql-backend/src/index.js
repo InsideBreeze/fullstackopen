@@ -143,14 +143,11 @@ const resolvers = {
           (book) => book.author === args.author
         );
       }
-      console.log(filteredBooks);
       if (args.genre) {
         filteredBooks = filteredBooks.filter((book) =>
           book.genres.includes(args.genre)
         );
-        console.log(filteredBooks);
       }
-      console.log("hmm", args.genre);
       return filteredBooks;
     },
     allAuthors: () => authors,
