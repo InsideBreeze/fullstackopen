@@ -9,8 +9,6 @@ const Recommendations = ({ show, genre }) => {
     }
   })
 
-  console.log(genre);
-
   if (!show) return null;
   if (booksResult.loading) return <p>loading</p>
   const books = booksResult.data.allBooks;

@@ -1,29 +1,44 @@
-import { useApolloClient, useMutation, useQuery } from "@apollo/client";
+import { useApolloClient, useMutation, useQuery, useSubscription } from "@apollo/client";
 import { useEffect, useState } from "react";
 import Authors from "./components/Authors";
 import Books from "./components/Books";
 import LoginForm from "./components/LoginForm";
 import NewBook from "./components/NewBook";
 import Recommendations from "./components/Recommendations";
-import { GET_ALL_BOOKS, GET_BOOKS_BY_GENRE, GET_ME, LOGIN } from "./queries";
+import { BOOK_ADDED, GET_ALL_BOOKS, GET_ME, LOGIN } from "./queries";
 
+export const updateCache = (cache, query, addedBook) => {
+  console.log(addedBook);
+  const uniqueByTitle = (a) => {
+    let seen = new Set();
+    return a.filter(item => {
+    //  console.log(item);
+      let k = item.title;
+      return seen.has(k) ? false : seen.add(k)
+    })
+  }
+  cache.updateQuery(query, ({ allBooks }) => {
+    return {
+      allBooks: uniqueByTitle(allBooks.concat(addedBook))
+    }
+  })
+}
 const App = () => {
   const [page, setPage] = useState("authors");
   const [token, setToken] = useState(null);
   const client = useApolloClient();
+
   const [login, result] = useMutation(LOGIN);
-  const [filter, setFilter] = useState("");
-
-
   const userResult = useQuery(GET_ME, {
     skip: !token
   });
-  // const booksResult = useQuery(GET_ALL_BOOKS, {
-  //   skip: filter.length !== 0
-  // })
+  const booksResult = useQuery(GET_ALL_BOOKS);
 
-  const booksResult = useQuery(GET_ALL_BOOKS)
-
+  useSubscription(BOOK_ADDED, {
+    onData: ({ data, client }) => {
+      updateCache(client.cache, { query: GET_ALL_BOOKS }, data.data.bookAdded)
+    }
+  })
 
   useEffect(() => {
     if (result.data) {
@@ -39,6 +54,9 @@ const App = () => {
       setToken(token);
     }
   }, [])
+
+
+
   const handleLogin = (username, password) => {
     login({
       variables: { username, password }
@@ -51,23 +69,11 @@ const App = () => {
     localStorage.clear();
     client.resetStore() // clear cache
   }
+
   if (userResult.loading || booksResult.loading) return <p>loading</p>
-  // console.log(booksResult.data.allBooks)
 
-  const getAllGenres = (books) => {
-    let genres = [];
-    for (let book of books) {
-      for (let genre of book.genres) {
-        if (!genres.includes(genre)) {
-          genres.push(genre)
-        }
-      }
-    }
-    return genres
-  }
-  const genres = getAllGenres(booksResult.data.allBooks)
+  const books = booksResult.data.allBooks;
 
-  console.log("genre", userResult)
   return (
     <div>
       <div>
@@ -85,7 +91,7 @@ const App = () => {
 
       <Authors show={page === "authors"} />
 
-      <Books show={page === "books"} genres={genres} />
+      <Books show={page === "books"} books={books} />
 
       <NewBook show={page === "add"} />
 

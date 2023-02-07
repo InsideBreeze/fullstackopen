@@ -1,5 +1,6 @@
 import { useMutation } from "@apollo/client";
 import { useState } from "react";
+import { updateCache } from "../App";
 import { CREATE_BOOK, GET_ALL_BOOKS, GET_BOOKS_BY_GENRE } from "../queries";
 
 const NewBook = (props) => {
@@ -10,37 +11,31 @@ const NewBook = (props) => {
   const [genres, setGenres] = useState([]);
 
   const [addBook] = useMutation(CREATE_BOOK, {
-    refetchQueries: [{ query: GET_ALL_BOOKS }],
+    // refetchQueries: [{ query: GET_ALL_BOOKS }],
     update: (cache, response) => {
-      genres.forEach(genre => {
+      updateCache(cache, { query: GET_ALL_BOOKS }, response.data.addBook);
+
+      genres.forEach((genre) => {
         console.log("cache genre", genre);
-        cache.updateQuery({ query: GET_BOOKS_BY_GENRE, variables: { genre } }, ({ allBooks }) => {
-          return {
-            allBooks: allBooks.concat(response.data.addBook)
+        cache.updateQuery(
+          { query: GET_BOOKS_BY_GENRE, variables: { genre } },
+          (data) => {
+            if (data) { // there is an cache in the db
+              console.log(data)
+              return {
+                allBooks: data.allBooks.concat(response.data.addBook),
+              };
+            }
           }
-        })
-      })
-      // cache allBooks("")
-      cache.updateQuery({ query: GET_BOOKS_BY_GENRE, variables: { genre: "" } }, ({ allBooks }) => {
-        return {
-          allBooks: allBooks.concat(response.data.addBook)
-        }
-      })
-    }
+        );
+      });
+    },
   });
 
   if (!props.show) {
     return null;
   }
 
-  // update: (cache, response) => {
-  // //update each genre, all_BOOKS
-  //     cache.updateQuery({ query: ALL_PERSONS, variables: {...} }, ({ allPersons }) => {
-  //       return {
-  //         allPersons: allPersons.concat(response.data.addPerson),
-  //       }
-  //     })
-  //   },
   const submit = async (event) => {
     event.preventDefault();
 

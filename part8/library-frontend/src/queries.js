@@ -17,9 +17,8 @@ export const GET_ALL_BOOKS = gql`
       published
       genres
       author {
-name
-
-}
+        name
+      }
     }
   }
 `;
@@ -40,9 +39,11 @@ export const CREATE_BOOK = gql`
     ) {
       title
       author {
-name
-}
-published
+        name
+      }
+      published
+      genres
+     
     }
   }
 `;
@@ -56,23 +57,23 @@ export const UPDATE_AUTHOR = gql`
 `;
 
 export const LOGIN = gql`
-mutation login($username: String!, $password: String!) {
-login(username: $username, password: $password) {
-value
-}
-}
-`
+  mutation login($username: String!, $password: String!) {
+    login(username: $username, password: $password) {
+      value
+    }
+  }
+`;
 export const GET_BOOKS_BY_GENRE = gql`
-query allBooks($genre: String!) {
-allBooks(genre: $genre) {
-title
-author {
-name
-}
-published
-}
-}
-`
+  query allBooks($genre: String!) {
+    allBooks(genre: $genre) {
+      title
+      author {
+        name
+      }
+      published
+    }
+  }
+`;
 // query Query($genre: String) {
 //   allBooks(genre: $genre) {
 //     published
@@ -80,10 +81,23 @@ published
 //   }
 // }
 export const GET_ME = gql`
-query {
-me {
-username
-favouriteGenre
-}
+  query {
+    me {
+      username
+      favouriteGenre
+    }
+  }
+`;
+
+export const BOOK_ADDED = gql`
+subscription {
+  bookAdded {
+    title
+    author {
+        name
+      }
+      published
+      genres
+  }
 }
 `
