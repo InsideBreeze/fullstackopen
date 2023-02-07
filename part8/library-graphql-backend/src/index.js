@@ -79,10 +79,10 @@ const resolvers = {
     allBooks: async (_, args) => {
       const { author, genre } = args;
       if (author && genre) {
-        return Book.find({ author, genres: genre });
+        return Book.find({ author, genres: genre }).populate("author");
       }
       if (!(author || genre)) {
-        return Book.find({});
+        return Book.find({}).populate("author");
       }
       // only author provided
       if (author) {
@@ -90,10 +90,10 @@ const resolvers = {
         if (!authorToFind) {
           return null;
         }
-        return Book.find({ author: authorToFind._id });
+        return Book.find({ author: authorToFind._id }).populate("author");
       }
       // only genre provided
-      return Book.find({ genres: genre });
+      return Book.find({ genres: genre }).populate("author");
     },
     allAuthors: async () => Author.find({}),
   },
@@ -109,7 +109,7 @@ const resolvers = {
   Mutation: {
     addBook: async (_, args, { currentUser }) => {
       if (!currentUser) {
-        throw GraphQLError("not authenticated", {
+        throw new GraphQLError("not authenticated", {
           extensions: {
             code: "BAD_USER_INPUT"
           }
@@ -136,7 +136,7 @@ const resolvers = {
           published,
           genres,
         });
-        return newBook.save();
+        return (await newBook.save()).populate("author");
       } catch (error) {
         throw new GraphQLError("the title of book is too short", {
           extensions: {
@@ -148,7 +148,7 @@ const resolvers = {
     },
     editAuthor: async (_, args, { currentUser }) => {
       if (!currentUser) {
-        throw GraphQLError("not authenticated", {
+        throw new GraphQLError("not authenticated", {
           extensions: {
             code: "BAD_USER_INPUT"
           }
