@@ -16,7 +16,6 @@ const NewBook = (props) => {
       updateCache(cache, { query: GET_ALL_BOOKS }, response.data.addBook);
 
       genres.forEach((genre) => {
-        console.log("cache genre", genre);
         cache.updateQuery(
           { query: GET_BOOKS_BY_GENRE, variables: { genre } },
           (data) => {

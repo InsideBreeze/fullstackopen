@@ -33,15 +33,6 @@ const resolvers = {
     },
     allAuthors: async () => Author.find({}),
   },
-  Author: {
-    bookCount: async (root) => {
-      const authorInDB = await Author.findOne({ name: root.name });
-      if (authorInDB) {
-        const books = await Book.find({ author: authorInDB._id });
-        return books.length;
-      }
-    },
-  },
   Mutation: {
     addBook: async (_, args, { currentUser }) => {
       // if user is not logged
@@ -64,7 +55,6 @@ const resolvers = {
       if (!authorInDB) {
         try {
           const authorObject = new Author({ name: author });
-          authorInDB = await authorObject.save();
         } catch (error) {
           throw new GraphQLError("the name of author is too short", {
             extensions: {
@@ -74,6 +64,9 @@ const resolvers = {
         }
       }
       try {
+        authorInDB.bookCount += 1;
+        // update author and books
+        await authorInDB.save();
         await newBook.save()
       } catch (error) {
         throw new GraphQLError("the title of book is too short", {

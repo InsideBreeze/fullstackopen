@@ -8,7 +8,6 @@ import Recommendations from "./components/Recommendations";
 import { BOOK_ADDED, GET_ALL_BOOKS, GET_ME, LOGIN } from "./queries";
 
 export const updateCache = (cache, query, addedBook) => {
-  console.log(addedBook);
   const uniqueByTitle = (a) => {
     let seen = new Set();
     return a.filter(item => {

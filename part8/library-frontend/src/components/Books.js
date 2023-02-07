@@ -33,6 +33,8 @@ const Books = ({ show, books }) => {
 
   const filteredBooks = genre === "" ? books : filteredBooksResult.data.allBooks;
 
+  if (books.length === 0) return <p>no book yet</p>
+
   return (
     <div>
       <h2>books</h2>
