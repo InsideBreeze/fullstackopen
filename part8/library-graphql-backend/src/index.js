@@ -4,18 +4,18 @@ const { json } = require("body-parser");
 const cors = require("cors");
 const http = require("http");
 const { expressMiddleware } = require("@apollo/server/express4");
-const { ApolloServerPluginDrainHttpServer } = require('@apollo/server/plugin/drainHttpServer');
+const {
+  ApolloServerPluginDrainHttpServer,
+} = require("@apollo/server/plugin/drainHttpServer");
 const { makeExecutableSchema } = require("@graphql-tools/schema");
 require("dotenv").config();
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const User = require("./models/user");
-const typeDefs = require("./schema")
+const typeDefs = require("./schema");
 const resolvers = require("./resolvers");
 const { WebSocketServer } = require("ws");
 const { useServer } = require("graphql-ws/lib/use/ws");
-
-
 
 mongoose.set("strictQuery", true);
 
@@ -35,9 +35,9 @@ const start = async () => {
 
   const wsServer = new WebSocketServer({
     server: httpServer,
-    path: "/"
+    path: "/",
   });
-  const schema = makeExecutableSchema({ typeDefs, resolvers })
+  const schema = makeExecutableSchema({ typeDefs, resolvers });
 
   const serverCleanup = useServer({ schema }, wsServer);
 
@@ -49,13 +49,13 @@ const start = async () => {
         async serverWillStart() {
           return {
             async drainServer() {
-              await serverCleanup.dispose()
-            }
-          }
-        }
-      }
-    ]
-  })
+              await serverCleanup.dispose();
+            },
+          };
+        },
+      },
+    ],
+  });
   await server.start();
 
   app.use(
@@ -74,11 +74,11 @@ const start = async () => {
         }
       },
     })
-  )
+  );
   const PORT = 4000;
   httpServer.listen(PORT, () => {
-    console.log(`Server is now running on http://localhost:${PORT}`)
-  })
-}
+    console.log(`Server is now running on http://localhost:${PORT}`);
+  });
+};
 
 start();

@@ -6,9 +6,9 @@ const Books = ({ show, books }) => {
   const [genre, setGenre] = useState("");
   const filteredBooksResult = useQuery(GET_BOOKS_BY_GENRE, {
     variables: {
-      genre
+      genre,
     },
-    skip: genre === ""
+    skip: genre === "",
   });
   if (!show) {
     return null;
@@ -22,24 +22,28 @@ const Books = ({ show, books }) => {
     for (let book of books) {
       for (let genre of book.genres) {
         if (!genres.includes(genre)) {
-          genres.push(genre)
+          genres.push(genre);
         }
       }
     }
     return genres;
-  }
+  };
 
-  const genres = getAllGenres(books)
+  const genres = getAllGenres(books);
 
-  const filteredBooks = genre === "" ? books : filteredBooksResult.data.allBooks;
+  const filteredBooks =
+    genre === "" ? books : filteredBooksResult.data.allBooks;
 
-  if (books.length === 0) return <p>no book yet</p>
+  if (books.length === 0) return <p>no book yet</p>;
 
   return (
     <div>
       <h2>books</h2>
-      <p>{genre !== "" ? <>in genre <b>{genre}</b></> : ""}</p>
-
+      {genre !== "" && (
+        <p>
+          in genre <b>{genre}</b>
+        </p>
+      )}
       <table>
         <tbody>
           <tr>
@@ -56,8 +60,11 @@ const Books = ({ show, books }) => {
           ))}
         </tbody>
       </table>
-      {genres.map(genre =>
-        <button onClick={() => setGenre(genre)} key={genre}>{genre}</button>)}
+      {genres.map((genre) => (
+        <button onClick={() => setGenre(genre)} key={genre}>
+          {genre}
+        </button>
+      ))}
       <button onClick={() => setGenre("")}>all genres</button>
     </div>
   );

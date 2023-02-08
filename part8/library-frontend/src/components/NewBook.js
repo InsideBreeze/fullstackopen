@@ -19,8 +19,8 @@ const NewBook = (props) => {
         cache.updateQuery(
           { query: GET_BOOKS_BY_GENRE, variables: { genre } },
           (data) => {
-            if (data) { // there is an cache in the db
-              console.log(data)
+            if (data) {
+              // there is an cache in the db
               return {
                 allBooks: data.allBooks.concat(response.data.addBook),
               };

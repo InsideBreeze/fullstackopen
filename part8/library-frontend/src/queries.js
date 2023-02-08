@@ -43,7 +43,6 @@ export const CREATE_BOOK = gql`
       }
       published
       genres
-     
     }
   }
 `;
@@ -74,12 +73,6 @@ export const GET_BOOKS_BY_GENRE = gql`
     }
   }
 `;
-// query Query($genre: String) {
-//   allBooks(genre: $genre) {
-//     published
-//     title
-//   }
-// }
 export const GET_ME = gql`
   query {
     me {
@@ -90,14 +83,14 @@ export const GET_ME = gql`
 `;
 
 export const BOOK_ADDED = gql`
-subscription {
-  bookAdded {
-    title
-    author {
+  subscription {
+    bookAdded {
+      title
+      author {
         name
       }
       published
       genres
+    }
   }
-}
-`
+`;
