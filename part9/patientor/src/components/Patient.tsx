@@ -7,9 +7,10 @@ import { Patient } from "../types";
 import MaleIcon from "@mui/icons-material/Male";
 import FemaleIcon from "@mui/icons-material/Female";
 import { Transgender } from "@mui/icons-material";
+import EntryDetail from "./EntryDetail";
 const PatientPage = () => {
   const { id } = useParams<{ id: string }>();
-  const [{ visitedPatients }, dispatch] = useStateValue();
+  const [{ visitedPatients, diagnoses }, dispatch] = useStateValue();
 
   useEffect(() => {
     if (id && !Object.keys(visitedPatients).includes(id)) {
@@ -23,6 +24,7 @@ const PatientPage = () => {
         });
     }
   }, [id]);
+
   if (!id) {
     return null;
   }
@@ -43,6 +45,13 @@ const PatientPage = () => {
       </h3>
       <p>ssn: {patient?.ssn}</p>
       <p>occupation: {patient?.occupation}</p>
+      <div>
+        <h4>entries</h4>
+        {patient && patient.entries && diagnoses.length !== 0 &&
+          patient.entries.map((entry) => (
+           <EntryDetail key={entry.id} entry={entry} />
+          ))}
+      </div>
     </div>
   );
 };
