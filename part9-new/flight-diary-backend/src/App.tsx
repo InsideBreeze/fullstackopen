@@ -36,13 +36,12 @@ const App = () => {
       } else if (error instanceof Error) {
         console.error(error.message);
       }
-      console.log("la", error);
     }
     setFields({
       date: "",
       comment: "",
       weather: "",
-      visibility: "",
+      visibility: fileds.visibility,
     });
   };
 
@@ -55,14 +54,48 @@ const App = () => {
         <div>
           date{" "}
           <input
+            type="date"
             value={fileds.date}
             onChange={(e) => setFields({ ...fileds, date: e.target.value })}
           />
         </div>
         <div>
-          visibility{" "}
+          visibility <label form="great">great</label>
           <input
-            value={fileds.visibility}
+            type="radio"
+            name="visibility"
+            id="great"
+            value="great"
+            onChange={(e) =>
+              setFields({ ...fileds, visibility: e.target.value })
+            }
+          />
+          <label form="good">good</label>
+          <input
+            type="radio"
+            name="visibility"
+            id="good"
+            value="good"
+            onChange={(e) =>
+              setFields({ ...fileds, visibility: e.target.value })
+            }
+          />
+          <label form="ok">ok</label>
+          <input
+            type="radio"
+            name="visibility"
+            id="ok"
+            value="ok"
+            onChange={(e) =>
+              setFields({ ...fileds, visibility: e.target.value })
+            }
+          />
+          <label form="poor">poor</label>
+          <input
+            type="radio"
+            name="visibility"
+            id="poor"
+            value="poor"
             onChange={(e) =>
               setFields({ ...fileds, visibility: e.target.value })
             }
