@@ -1,10 +1,11 @@
-import express from "express";
+import express, { json } from "express";
 import cors from "cors";
 import patientRouter from "./routes/patientRouter";
 import diagnoseRouter from "./routes/diagnoseRouter";
 
 const app = express();
 app.use(cors());
+app.use(json());
 
 
 app.use("/api/patients", patientRouter);

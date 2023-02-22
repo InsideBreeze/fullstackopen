@@ -1,4 +1,6 @@
 import patients from "../../data/patients";
+import { NewPatient, Patient } from "../types";
+import { v1 as uuid } from "uuid";
 
 
 export const getAllPatients = () => {
@@ -13,4 +15,10 @@ export const getAllPublicPatients = () => {
         gender,
         occupation
     }))
+}
+
+export const createPatient = (newPatient: NewPatient): Patient => {
+    const patient = {...newPatient, id: uuid()};
+    patients.push(patient);
+    return patient;
 }
