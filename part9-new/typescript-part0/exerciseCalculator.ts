@@ -22,10 +22,10 @@ const parseArgs = (args: string[]): { daily_hours: number[], target: number } =>
     return {
         target: numbers[0],
         daily_hours: numbers.slice(1)
-    }
-}
+    };
+};
 
-const calculateExercises = (daily_hours: number[], target: number): Result => {
+export const calculateExercises = (daily_hours: number[], target: number): Result => {
     const periodLength = daily_hours.length;
     const trainingDays = daily_hours.filter(hour => hour !== 0).length;
     const average = daily_hours.reduce((acc, hour) => acc + hour, 0) / periodLength;
@@ -37,10 +37,10 @@ const calculateExercises = (daily_hours: number[], target: number): Result => {
         rating = 3;
     } else if (average /target > 0.5) {
         rating = 2;
-        ratingDescription = "could be better"
+        ratingDescription = "could be better";
     } else {
         rating = 1;
-        ratingDescription = "bad"
+        ratingDescription = "bad";
     }
     return {
         periodLength,
@@ -50,8 +50,8 @@ const calculateExercises = (daily_hours: number[], target: number): Result => {
         ratingDescription,
         target,
         average
-    }
-}
+    };
+};
 
 try {
     const { daily_hours, target } = parseArgs(process.argv.slice(2));

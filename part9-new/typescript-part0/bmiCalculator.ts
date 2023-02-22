@@ -1,20 +1,20 @@
-const calculateBmi = (height: number, weight: number): string => {
+export const calculateBmi = (height: number, weight: number): string => {
     const bmi = weight / (height * height/10000);
     let message: string;
     if (bmi < 18.5) {
-        message = "Underweight"
+        message = "Underweight";
     } else if (bmi < 25) {
-        message = "Normal"
+        message = "Normal";
     } else if (bmi < 30) {
         message = "Overweight";
     } else {
         message = "Obese";
     }
     return message;
-}
+};
 
 // parse args given by commandline
-const parseBmiArgs = (args: string[]): {height: number, weight: number} => {
+/* const parseBmiArgs = (args: string[]): {height: number, weight: number} => {
     if (args.length !== 2) {
         throw new Error("usage: npm run calculateBmi -- height weight");
     }
@@ -28,10 +28,10 @@ const parseBmiArgs = (args: string[]): {height: number, weight: number} => {
         height,
         weight
     }
-}
+} */
 
 
-try {
+/* try {
     const { height, weight } = parseBmiArgs(process.argv.slice(2,));
     console.log(calculateBmi(height, weight));
 } catch (error: unknown) {
@@ -40,4 +40,4 @@ try {
         message += ": " + error.message;
     }
     console.error(message);
-}
+} */
