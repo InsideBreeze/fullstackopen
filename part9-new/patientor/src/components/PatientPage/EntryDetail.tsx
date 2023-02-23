@@ -1,5 +1,5 @@
 import React from "react";
-import { Entry } from "../types";
+import { Entry } from "../../types";
 
 const EntryDetail = ({ entry }: { entry: Entry }) => {
   switch (entry.type) {

@@ -16,8 +16,8 @@ import {
   HospitalEntryFields,
   OccupationalHealthcareEntryFields,
   Patient,
-} from "../types";
-import patientService from "../services/patients";
+} from "../../types";
+import patientService from "../../services/patients";
 import { isAxiosError } from "axios";
 
 const EntryForm = ({

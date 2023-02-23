@@ -1,11 +1,11 @@
 import React, { useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { Diagnosis, Patient } from "../types";
-import patientService from "../services/patients";
+import { Diagnosis, Patient } from "../../types";
+import patientService from "../../services/patients";
 import FemaleIcon from "@mui/icons-material/Female";
 import MaleIcon from "@mui/icons-material/Male";
 import TransgenderIcon from "@mui/icons-material/Transgender";
-import diagnosisService from "../services/diagnoses";
+import diagnosisService from "../../services/diagnoses";
 import EntryDetail from "./EntryDetail";
 import EntryForm from "./EntryForm";
 import ErrorNotification from "./ErrorNotification";
