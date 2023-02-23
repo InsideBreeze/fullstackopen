@@ -64,7 +64,7 @@ const EntryForm = ({
     e.preventDefault();
     if (id) {
       try {
-        let basicEntry = {
+        const basicEntry = {
           description: baseEntryFields.description,
           date: baseEntryFields.date,
           specialist: baseEntryFields.specialist,
