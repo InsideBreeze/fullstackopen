@@ -1,7 +1,7 @@
 import { Gender, Patient } from "../src/types";
 import { toNewPatient } from "../src/utils/toNewPatient";
 
-const data: Patient[] = [
+let data: Patient[] = [
   {
     id: "d2773336-f723-11e9-8f0b-362b9e155667",
     name: "John McClane",
@@ -121,9 +121,9 @@ const patients: Patient[] = data.map(
       ssn,
       gender,
       occupation,
-      entries,
     }) as Patient;
     patient.id = id;
+    patient.entries = entries;
     return patient;
   }
 );

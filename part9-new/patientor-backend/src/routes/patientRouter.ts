@@ -1,9 +1,11 @@
 import express from "express";
 import {
+  addEntry,
   createPatient,
   findPatientById,
   getAllPublicPatients,
 } from "../services/patientService";
+import { toNewEntry } from "../utils/toNewEntry";
 import { toNewPatient } from "../utils/toNewPatient";
 
 const patientRouter = express.Router();
@@ -30,6 +32,21 @@ patientRouter.get("/:id", (req, res) => {
     return res.json(patient);
   }
   return res.status(400).json({ error: "invalid id" });
+});
+
+patientRouter.post("/:id/entries", (req, res) => {
+  try {
+    const newEntry = toNewEntry(req.body);
+    const id = req.params.id;
+    const entry = addEntry(id, newEntry);
+    return res.status(201).json(entry);
+  } catch (error) {
+    let message = "something bad happened";
+    if (error instanceof Error) {
+      return res.status(400).send(error.message);
+    }
+    return res.status(400).send(message).end();
+  }
 });
 
 export default patientRouter;
