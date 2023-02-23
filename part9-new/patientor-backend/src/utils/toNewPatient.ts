@@ -1,4 +1,4 @@
-import { Gender, NewPatient } from "../types";
+import { Entry, Gender, NewPatient } from "../types";
 
 export const toNewPatient = (object: unknown): NewPatient => {
   if (!object || typeof object !== "object") {
@@ -9,7 +9,8 @@ export const toNewPatient = (object: unknown): NewPatient => {
     "dateOfBirth" in object &&
     "ssn" in object &&
     "gender" in object &&
-    "occupation" in object
+    "occupation" in object &&
+    "entries" in object
   ) {
     return {
       name: parseStringField(object.name),
@@ -17,7 +18,7 @@ export const toNewPatient = (object: unknown): NewPatient => {
       ssn: parseStringField(object.ssn),
       gender: parseGender(object.gender),
       occupation: parseStringField(object.occupation),
-      entries: [],
+      entries: object.entries as Entry[],
     };
   }
 
