@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { Diagnosis, Entry, Patient } from "../types";
+import { Diagnosis, Patient } from "../types";
 import patientService from "../services/patients";
 import FemaleIcon from "@mui/icons-material/Female";
 import MaleIcon from "@mui/icons-material/Male";
@@ -13,7 +13,9 @@ import ErrorNotification from "./ErrorNotification";
 const PatientPage = () => {
   const [patient, setPatient] = React.useState<Patient | null>(null);
   const [diagnoses, setDiagnoses] = React.useState<Diagnosis[]>([]);
-  const [formType, setFormType] = React.useState<string>("Hospital");
+  const [formType, setFormType] = React.useState<
+    "Hospital" | "OccupationalHealthcare" | "HealthCheck"
+  >("Hospital");
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
   const id = useParams().id;
 
@@ -84,13 +86,37 @@ const PatientPage = () => {
               </div>
             );
           })}
+
         {patient && (
-          <EntryForm
-            type={formType}
-            patient={patient}
-            updatePatient={setPatient}
-            notify={notify}
-          />
+          <div
+            style={{
+              border: "1px solid black",
+              padding: "20px",
+              marginTop: "25px",
+            }}
+          >
+            <div
+              style={{
+                margin: 15,
+              }}
+            >
+              <button onClick={() => setFormType("Hospital")}>
+                add hospital entry
+              </button>
+              <button onClick={() => setFormType("OccupationalHealthcare")}>
+                add occupationalHealthcare entry
+              </button>
+              <button onClick={() => setFormType("HealthCheck")}>
+                add healthcheck entry
+              </button>
+            </div>
+            <EntryForm
+              type={formType}
+              patient={patient}
+              updatePatient={setPatient}
+              notify={notify}
+            />
+          </div>
         )}
       </div>
     </div>

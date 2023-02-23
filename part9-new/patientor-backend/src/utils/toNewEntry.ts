@@ -31,7 +31,7 @@ export const toNewEntry = (object: unknown): EntryWithoutId => {
           healthCheckRating: parseCheckingRating(object),
           type: "HealthCheck",
         };
-      case "OccupationalHealthcase":
+      case "OccupationalHealthcare":
         return {
           description,
           specialist,
@@ -53,7 +53,7 @@ export const toNewEntry = (object: unknown): EntryWithoutId => {
     }
   }
 
-  throw new Error("something wrong");
+  throw new Error("something wrong" + JSON.stringify(object));
 };
 
 const isString = (value: unknown): value is string => {

@@ -74,13 +74,23 @@ type UnionOmit<T, K extends string | number | symbol> = T extends unknown
 // Define Entry without the 'id' property
 export type EntryWithoutId = UnionOmit<Entry, "id">;
 
-interface BaseEntryFields {
+export interface BaseEntryFields {
   description: string;
   date: string;
   specialist: string;
   codes: string;
 }
-export interface HospitalEntryFields extends BaseEntryFields {
+export interface HospitalEntryFields {
   dischargeDate: string;
   criteria: string;
+}
+
+export interface OccupationalHealthcareEntryFields {
+  employerName: string;
+  startDate: string;
+  endDate: string;
+}
+
+export interface HealthCheckEntryFields {
+  healthCheckRating: string;
 }
